@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import "../globals.css";
+import "../globals.css"
 import type { Metadata } from "next";
 import { Josefin_Sans } from "next/font/google";
 
