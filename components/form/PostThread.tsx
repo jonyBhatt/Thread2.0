@@ -30,7 +30,7 @@ interface Props {
 	};
 	btnTitle: string;
 }
-async function PostThread({ userId }: { userId: string }) {
+ function PostThread({ userId }: { userId: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
 
@@ -48,7 +48,9 @@ async function PostThread({ userId }: { userId: string }) {
 					author: userId,
 					communityId:null,
 					path:pathname,
-				});
+        });
+        
+        router.push('/')
 	};
 	return (
 		<>
