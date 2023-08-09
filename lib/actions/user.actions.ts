@@ -12,6 +12,7 @@ interface Params{
     path: string,
     
 }
+
 export async function UpdateUser(
 	{userId,
 	name,
@@ -24,7 +25,7 @@ export async function UpdateUser(
 	connectDB();
 
 	try {
-         await User.findOneAndUpdate(
+        const user =  await User.findOneAndUpdate(
 					{ id: userId },
 					{
 						username: username.toLowerCase(),
@@ -40,8 +41,23 @@ export async function UpdateUser(
 				if (path === "/profile/edit") {
 					revalidatePath(path);
 				}
+
+                console.log(user);
+                
     } catch (error:any) {
         throw new Error(`Failed to update/create user for ${error.message}`);
         
     }
+}
+
+export async function fetchUser(userId: string) {
+	try {
+		connectDB();
+		return await User.findOne({ id: userId });
+	} catch (error:any) {
+		throw new Error(`Fetch problem in ${error.message}`);
+		
+	}
+	
+	
 }
