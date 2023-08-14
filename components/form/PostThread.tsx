@@ -19,17 +19,17 @@ import { threadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
 // import { UpdateUser } from "@/lib/actions/user.actions";
 
-interface Props {
-	user: {
-		name: string;
-		bio: string;
-		username: string;
-		image: string;
-		id: string;
-		objectId: string;
-	};
-	btnTitle: string;
-}
+// interface Props {
+// 	user: {
+// 		name: string;
+// 		bio: string;
+// 		username: string;
+// 		image: string;
+// 		id: string;
+// 		objectId: string;
+// 	};
+// 	btnTitle: string;
+// }
  function PostThread({ userId }: { userId: string }) {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -54,7 +54,6 @@ interface Props {
 	};
 	return (
 		<>
-			{/* <h1 className="text-gray-400/[.8] font-bold">Post Thread</h1> */}
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
