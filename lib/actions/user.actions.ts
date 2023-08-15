@@ -5,6 +5,7 @@ import User from "../models/user.model";
 import { connectDB } from "../mongoose";
 import { string } from "zod";
 import Thread from "../models/thread.models";
+import { FilterQuery, SortOrder } from "mongoose";
 interface Params {
 	userId: string;
 	name: string;
@@ -79,5 +80,81 @@ export async function fetchUserPost(userId: string) {
 		return posts;
 	} catch (error: any) {
 		throw new Error(`Fetch problem in ${error.message}`);
+	}
+}
+
+export async function fetchUsers({
+	userId,
+	searchString = "",
+	pageNumber = 1,
+	pageSize = 20,
+	sortBy = "desc",
+}: {
+	userId: string;
+	searchString?: string;
+	pageNumber?: number;
+	pageSize?: number;
+	sortBy?: SortOrder;
+}) {
+	try {
+		connectDB();
+		//skip amount
+		const skip = (pageNumber - 1) * pageSize;
+
+		// letter will be case insensitive
+		const regex = new RegExp(searchString, "i");
+
+		// filter current user
+		const query: FilterQuery<typeof User> = {
+			id: { $ne: userId },
+		};
+		if (searchString.trim() !== "") {
+			query.$or = [{ username: regex }, { name: regex }];
+		}
+
+		//define sort
+		const sortOptions = { createdAt: sortBy };
+		// now fetch user by query, sort options, skip amount and limit
+		const userQuery = User.find(query)
+			.sort(sortOptions)
+			.limit(pageSize)
+			.skip(skip);
+
+		// count total amount of users
+		const usersCount = await User.countDocuments(query);
+
+		//execute the user query
+		const users = await userQuery.exec();
+
+		// check is there next page available
+		const isNextPage = usersCount > skip + users.length;
+		return { users, isNextPage };
+	} catch (error: any) {
+		throw new Error(`Fetch problem in fetch users ${error.message}`);
+	}
+}
+
+export async function getActivities(userId: string) {
+	try {
+		connectDB();
+		// fetch all threads where userId is author or participant
+		const userThread = await Thread.find({ author: userId });
+
+		// Collect all the child thread ids (replies) from the 'children' field of each user thread
+		const childThread = userThread.reduce((acc, thread) => {
+			return acc.concat(thread.children);
+		}, []);
+		//Find and return the child
+		const reply = await Thread.find({
+			_id: { $in: childThread },
+			author: { $ne: userId }, //populate author
+		}).populate({
+			path: "author",
+			model: User,
+			select: "name image _id",
+		});
+		return reply;
+	} catch (error: any) {
+		throw new Error(`Fetch problem in activity ${error.message}`);
 	}
 }
