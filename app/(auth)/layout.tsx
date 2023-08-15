@@ -29,7 +29,11 @@ export default function RootLayout({
 				},
 			}}>
 			<html lang="en">
-				<body className={`${josef.className}  bg-dark-1`}>{children}</body>
+				<body className={`${josef.className}  bg-dark-1`}>
+					<div className="flex w-full justify-center items-center min-h-screen">
+						{children}
+					</div>
+				</body>
 			</html>
 		</ClerkProvider>
 	);

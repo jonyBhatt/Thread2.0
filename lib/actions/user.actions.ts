@@ -137,23 +137,25 @@ export async function fetchUsers({
 export async function getActivities(userId: string) {
 	try {
 		connectDB();
-		// fetch all threads where userId is author or participant
-		const userThread = await Thread.find({ author: userId });
+		// Find all threads created by the user
+		const userThreads = await Thread.find({ author: userId });
 
 		// Collect all the child thread ids (replies) from the 'children' field of each user thread
-		const childThread = userThread.reduce((acc, thread) => {
-			return acc.concat(thread.children);
+		const childThreadIds = userThreads.reduce((acc, userThread) => {
+			return acc.concat(userThread.children);
 		}, []);
-		//Find and return the child
-		const reply = await Thread.find({
-			_id: { $in: childThread },
-			author: { $ne: userId }, //populate author
+
+		// Find and return the child threads (replies) excluding the ones created by the same user
+		const replies = await Thread.find({
+			_id: { $in: childThreadIds },
+			author: { $ne: userId }, // Exclude threads authored by the same user
 		}).populate({
 			path: "author",
 			model: User,
 			select: "name image _id",
 		});
-		return reply;
+
+		return replies;
 	} catch (error: any) {
 		throw new Error(`Fetch problem in activity ${error.message}`);
 	}
